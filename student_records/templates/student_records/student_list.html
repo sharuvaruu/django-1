@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        form {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        input[type="text"], select {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            width: 80%;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        li {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Student List -->
+    <marquee><h1>SGGSIE&T STUDENT's DATABASE</h1></marquee>
+    <h3>Below is the list of third year students </h3>
+    <ul id="studentList">
+        {% for student in students %}
+        <li>{{ student.name }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Add Student Form -->
+    <form id="addStudentForm">
+        <input type="text" id="studentName" placeholder="Enter student name">
+        <input type="text" id="studentRollNumber" placeholder="Enter roll number">
+        <select id="studentDepartment">
+            {% for department in departments %}
+            <option value="{{ department.id }}">{{ department.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" onclick="addStudent()">Add Student</button>
+    </form>
+
+    <!-- Delete Student Form -->
+    <form id="deleteStudentForm">
+        <select id="studentSelect">
+            {% for student in students %}
+            <option value="{{ student.id }}">{{ student.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" onclick="deleteStudent()">Delete Student</button>
+    </form>
+
+    <!-- Add Department Form -->
+    <form id="addDepartmentForm">
+        <input type="text" id="departmentName" placeholder="Enter department name">
+        <button type="button" onclick="addDepartment()">Add Department</button>
+    </form>
+
+    <!-- Delete Department Form -->
+    <form id="deleteDepartmentForm">
+        <select id="departmentSelect">
+            {% for department in departments %}
+            <option value="{{ department.id }}">{{ department.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" onclick="deleteDepartment()">Delete Department</button>
+    </form>
+
+    <!-- JavaScript functions -->
+    <script>
+        function addStudent() {
+        var studentName = document.getElementById('studentName').value;
+        var studentRollNumber = document.getElementById('studentRollNumber').value;
+        var studentDepartment = document.getElementById('studentDepartment').value;
+
+        // AJAX call to add student
+        fetch('/add-student/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}' // Ensure you have CSRF token in your template
+            },
+            body: JSON.stringify({
+                'name': studentName,
+                'roll_number': studentRollNumber,
+                'department': studentDepartment
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload the page to update the student list
+                location.reload();
+            } else {
+                console.error('Error adding student:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error adding student:', error);
+        });
+    }
+
+    function deleteStudent() {
+        var studentId = document.getElementById('studentSelect').value;
+
+        // AJAX call to delete student
+        fetch(`/delete-student/${studentId}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}' // Ensure you have CSRF token in your template
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload the page to update the student list
+                location.reload();
+            } else {
+                console.error('Error deleting student:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting student:', error);
+        });
+    }
+
+    function addDepartment() {
+        var departmentName = document.getElementById('departmentName').value;
+
+        // AJAX call to add department
+        fetch('/add-department/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}' // Ensure you have CSRF token in your template
+            },
+            body: JSON.stringify({
+                'name': departmentName
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload the page to update the department list
+                location.reload();
+            } else {
+                console.error('Error adding department:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error adding department:', error);
+        });
+    }
+
+    function deleteDepartment() {
+        var departmentId = document.getElementById('departmentSelect').value;
+
+        // AJAX call to delete department
+        fetch(`/delete-department/${departmentId}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}' // Ensure you have CSRF token in your template
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload the page to update the department list
+                location.reload();
+            } else {
+                console.error('Error deleting department:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting department:', error);
+        });
+    }
+    </script>
+</body>
+</html>
